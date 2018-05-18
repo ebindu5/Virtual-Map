@@ -41,30 +41,26 @@
                                     <outletCollection property="gestureRecognizers" destination="sWI-vV-Uwt" appends="YES" id="q9V-Z1-5LM"/>
                                 </connections>
                             </mapView>
-                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fdl-2W-039">
-                                <rect key="frame" x="0.0" y="600" width="375" height="67"/>
+                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tap To Delete" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zBd-cd-gRG">
+                                <rect key="frame" x="0.0" y="611" width="375" height="56"/>
                                 <color key="backgroundColor" red="1" green="0.2170948365" blue="0.21115409560000001" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="67" id="L1y-cg-qI4"/>
+                                    <constraint firstAttribute="height" constant="56" id="z5o-WT-R9a"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                <state key="normal" title="Tap pins to Delete">
-                                    <color key="titleColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                                <connections>
-                                    <action selector="deletePins:" destination="BYZ-38-t0r" eventType="touchUpInside" id="n7K-pf-FHa"/>
-                                </connections>
-                            </button>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="fdl-2W-039" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="9w8-QB-p4x"/>
                             <constraint firstItem="tAE-rH-KnR" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="Qg5-91-IAY"/>
-                            <constraint firstItem="fdl-2W-039" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="TmZ-2L-KZH"/>
+                            <constraint firstItem="zBd-cd-gRG" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="Qpm-VL-ZzV"/>
                             <constraint firstItem="tAE-rH-KnR" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="XYP-8u-W2Z"/>
+                            <constraint firstItem="zBd-cd-gRG" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="eEz-Od-YeH"/>
                             <constraint firstItem="tAE-rH-KnR" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="grJ-Ac-79Y"/>
                             <constraint firstItem="tAE-rH-KnR" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="hh6-Nb-CFk"/>
-                            <constraint firstItem="fdl-2W-039" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="qoK-tD-4zr"/>
+                            <constraint firstItem="zBd-cd-gRG" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="lp6-TJ-HKL"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
@@ -76,7 +72,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="deleteButton" destination="fdl-2W-039" id="dzc-Ly-rpC"/>
+                        <outlet property="deleteLabel" destination="zBd-cd-gRG" id="Jnw-ge-VVz"/>
                         <outlet property="editButton" destination="0RO-Iu-97M" id="n0q-i9-cet"/>
                         <outlet property="gesture" destination="sWI-vV-Uwt" id="gKz-tj-Dav"/>
                         <outlet property="mapView" destination="tAE-rH-KnR" id="1je-fr-u4a"/>
@@ -116,7 +112,7 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="xYd-eR-XnA" customClass="PhotoCollectionViewCell" customModule="Virtual_Tourist" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="PhotoCollectionViewCell" id="xYd-eR-XnA" customClass="PhotoCollectionViewCell" customModule="Virtual_Tourist" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="118" height="117"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -141,7 +137,17 @@
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
+                                <connections>
+                                    <outlet property="dataSource" destination="dW4-CH-DV6" id="WOr-FT-DTC"/>
+                                    <outlet property="delegate" destination="dW4-CH-DV6" id="CE4-BD-b4a"/>
+                                </connections>
                             </collectionView>
+                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No Images Avaible for the location" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="a7C-51-ead">
+                                <rect key="frame" x="0.0" y="186" width="375" height="431"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="27"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XQq-s1-4Jt">
                                 <rect key="frame" x="0.0" y="619" width="375" height="48"/>
                                 <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -159,13 +165,17 @@
                         <constraints>
                             <constraint firstItem="XQq-s1-4Jt" firstAttribute="trailing" secondItem="12D-uv-x6m" secondAttribute="trailing" id="3Em-XQ-go6"/>
                             <constraint firstItem="mpI-kW-yyD" firstAttribute="leading" secondItem="12D-uv-x6m" secondAttribute="leading" id="7VM-Kl-lzp"/>
+                            <constraint firstItem="a7C-51-ead" firstAttribute="leading" secondItem="12D-uv-x6m" secondAttribute="leading" id="7WY-ul-FFe"/>
+                            <constraint firstItem="XQq-s1-4Jt" firstAttribute="top" secondItem="a7C-51-ead" secondAttribute="bottom" constant="2" id="FaI-gx-lO7"/>
                             <constraint firstItem="O1J-jS-WR4" firstAttribute="leading" secondItem="12D-uv-x6m" secondAttribute="leading" id="FwH-1Z-7bt"/>
                             <constraint firstItem="mpI-kW-yyD" firstAttribute="trailing" secondItem="12D-uv-x6m" secondAttribute="trailing" id="LpY-rd-rIe"/>
                             <constraint firstItem="XQq-s1-4Jt" firstAttribute="bottom" secondItem="12D-uv-x6m" secondAttribute="bottom" id="PG9-e9-SIO"/>
                             <constraint firstItem="XQq-s1-4Jt" firstAttribute="top" secondItem="O1J-jS-WR4" secondAttribute="bottom" constant="2" id="RVc-vn-HtY"/>
                             <constraint firstItem="O1J-jS-WR4" firstAttribute="top" secondItem="mpI-kW-yyD" secondAttribute="bottom" constant="2" id="YA6-je-PH5"/>
+                            <constraint firstItem="a7C-51-ead" firstAttribute="trailing" secondItem="12D-uv-x6m" secondAttribute="trailing" id="kPx-H6-rb9"/>
                             <constraint firstItem="O1J-jS-WR4" firstAttribute="trailing" secondItem="12D-uv-x6m" secondAttribute="trailing" id="oQ9-Dq-tii"/>
                             <constraint firstItem="mpI-kW-yyD" firstAttribute="top" secondItem="12D-uv-x6m" secondAttribute="top" id="vHh-ah-rrp"/>
+                            <constraint firstItem="a7C-51-ead" firstAttribute="top" secondItem="mpI-kW-yyD" secondAttribute="bottom" constant="2" id="xZR-Vp-tAz"/>
                             <constraint firstItem="XQq-s1-4Jt" firstAttribute="leading" secondItem="12D-uv-x6m" secondAttribute="leading" id="zHZ-rS-iM7"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="12D-uv-x6m"/>
@@ -174,6 +184,7 @@
                         <outlet property="collectionView" destination="O1J-jS-WR4" id="l4j-aZ-Jur"/>
                         <outlet property="mapView" destination="mpI-kW-yyD" id="8kg-Dj-JHv"/>
                         <outlet property="newCollectionButton" destination="XQq-s1-4Jt" id="lvn-5w-ens"/>
+                        <outlet property="noImagesLabel" destination="a7C-51-ead" id="WRc-NY-VGi"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Fzg-sl-wfe" userLabel="First Responder" sceneMemberID="firstResponder"/>

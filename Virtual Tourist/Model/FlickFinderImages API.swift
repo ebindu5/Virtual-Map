@@ -98,12 +98,12 @@ class FlickFinderImagesAPI: UIViewController {
     }
     
     
-    static func displayImageFromFlickrBySearch(_ methodParameters: [String: AnyObject], completionHandlerForSearchImage: @escaping (_ success : Bool?, _ data: [UIImage]?,_ error: String?)-> Void){
+    static func displayImageFromFlickrBySearch(_ methodParameters: [String: AnyObject], completionHandlerForSearchImage: @escaping (_ success : Bool?, _ data: [[String:AnyObject]]?,_ error: String?)-> Void){
         
         // create session and request
         let session = URLSession.shared
         let request = URLRequest(url: flickrURLFromParameters(methodParameters))
-        
+       
         // create network request
         let task = session.dataTask(with: request) { (data, response, error) in
             
@@ -165,7 +165,7 @@ class FlickFinderImagesAPI: UIViewController {
             // pick a random page!
             let pageLimit = min(totalPages, 40)
             let randomPage = Int(arc4random_uniform(UInt32(pageLimit))) + 1
-            self.displayImageFromFlickrBySearch(methodParameters, withPageNumber: randomPage){ (success, data, error) in
+            self.displayImageFromFlickrBySearch(methodParameters, withPageNumber: randomPage){ (success, result, error) in
                 
                 guard error == nil else {
                     completionHandlerForSearchImage(false, nil,error)
@@ -173,12 +173,11 @@ class FlickFinderImagesAPI: UIViewController {
                 }
                 
                 /* GUARD: Was there any data returned? */
-                guard let data = data else {
+                guard let result = result else {
                     completionHandlerForSearchImage(false, nil,"No data was returned by the request!")
                     return
                 }
-                
-                completionHandlerForSearchImage(true, data, nil)
+                completionHandlerForSearchImage(true, result, nil)
                 
             }
         }
@@ -189,7 +188,7 @@ class FlickFinderImagesAPI: UIViewController {
     
 
     
-    static func displayImageFromFlickrBySearch(_ methodParameters: [String: AnyObject], withPageNumber: Int, completionHandlerforImageFromFlickr: @escaping (_ success: Bool?, _ data: [UIImage]?, _ error: String?) -> Void) {
+    static func displayImageFromFlickrBySearch(_ methodParameters: [String: AnyObject], withPageNumber: Int, completionHandlerforImageFromFlickr: @escaping (_ success: Bool?, _ data: [[String: AnyObject]]?, _ error: String?) -> Void) {
         
         // add the page to the method's parameters
         var methodParametersWithPageNumber = methodParameters
@@ -197,7 +196,7 @@ class FlickFinderImagesAPI: UIViewController {
         
         // create session and request
         let session = URLSession.shared
-        let request = URLRequest(url: flickrURLFromParameters(methodParameters))
+        let request = URLRequest(url: flickrURLFromParameters(methodParametersWithPageNumber))
         
         // create network request
         let task = session.dataTask(with: request) { (data, response, error) in
@@ -262,44 +261,30 @@ class FlickFinderImagesAPI: UIViewController {
                 return
             } else {
                 
-                var finalImages = [UIImage]()
-                for array in photosArray {
-                    guard let imageUrlString = array[Constants.FlickrResponseKeys.MediumURL] as? String else {
-                        displayError("Cannot find key '\(Constants.FlickrResponseKeys.MediumURL)' in \(array)")
-                        return
-                    }
-                    let imageURL = URL(string: imageUrlString)
-                    if let imageData = try? Data(contentsOf: imageURL!) {
-                        finalImages.append(UIImage(data: imageData)!)
-                    } else {
-                         completionHandlerforImageFromFlickr(false, nil, "Image does not exist at \(imageURL)")
-//                        displayError("Image does not exist at \(imageURL)")
-                    }
-                }
+//                var finalImages = [UIImage]()
+//                for array in photosArray {
+//                   let imageUrlString = array[Constants.FlickrResponseKeys.MediumURL] as? String
+//                    if let imageUrlString = imageUrlString{
+//                        let imageURL = URL(string: imageUrlString)
+//                        print(imageURL)
+//                        if let imageData = try? Data(contentsOf: imageURL!) {
+//                            if finalImages.count < 10 {
+//                                finalImages.append(UIImage(data: imageData)!)
+//                            }else{
+//                                break
+//                            }
+//
+//                        }
+//                    }
+//
+//                }
+
+//                if finalImages.count > 0 {
+                    completionHandlerforImageFromFlickr(true, photosArray, nil)
+//                }else{
+//                    completionHandlerforImageFromFlickr(true, nil, "no data")
+//                }
                 
-                completionHandlerforImageFromFlickr(true, finalImages, nil)
-                //                let randomPhotoIndex = Int(arc4random_uniform(UInt32(photosArray.count)))
-                //                let photoDictionary = photosArray[randomPhotoIndex] as [String: AnyObject]
-                //                let photoTitle = photoDictionary[Constants.FlickrResponseKeys.Title] as? String
-                //
-                //                /* GUARD: Does our photo have a key for 'url_m'? */
-                //                guard let imageUrlString = photoDictionary[Constants.FlickrResponseKeys.MediumURL] as? String else {
-                //                    displayError("Cannot find key '\(Constants.FlickrResponseKeys.MediumURL)' in \(photoDictionary)")
-                //                    return
-                //                }
-                //
-                //                // if an image exists at the url, set the image and title
-                //                let imageURL = URL(string: imageUrlString)
-                //                if let imageData = try? Data(contentsOf: imageURL!) {
-                //                    performUIUpdatesOnMain {
-                //
-                ////                        self.setUIEnabled(true)
-                ////                        self.photoImageView.image = UIImage(data: imageData)
-                ////                        self.photoTitleLabel.text = photoTitle ?? "(Untitled)"
-                //                    }
-                //                } else {
-                //                    displayError("Image does not exist at \(imageURL)")
-                //                }
             }
         }
         
@@ -321,8 +306,70 @@ class FlickFinderImagesAPI: UIViewController {
             let queryItem = URLQueryItem(name: key, value: "\(value)")
             components.queryItems!.append(queryItem)
         }
-        
+        print(components.url!)
         return components.url!
     }
+    
+    static  func getImages(_ latitude: Double, _ longitude: Double, completionHandler: @escaping (_ success: Bool?, _ data : [[String:AnyObject]]?, _ error : String?)-> Void){
+        let methodParameters = [
+            Constants.FlickrParameterKeys.Method: Constants.FlickrParameterValues.SearchMethod,
+            Constants.FlickrParameterKeys.APIKey: Constants.FlickrParameterValues.APIKey,
+            Constants.FlickrParameterKeys.BoundingBox: bboxString(latitude, longitude),
+            Constants.FlickrParameterKeys.SafeSearch: Constants.FlickrParameterValues.UseSafeSearch,
+            Constants.FlickrParameterKeys.Extras: Constants.FlickrParameterValues.MediumURL,
+            Constants.FlickrParameterKeys.Format: Constants.FlickrParameterValues.ResponseFormat,
+            Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback
+        ]
+        
+        FlickFinderImagesAPI.displayImageFromFlickrBySearch(methodParameters as [String : AnyObject]) { (success, data, error) in
+            
+            if error != nil {
+                completionHandler(false,nil,error!)
+            }
+            
+            if data == nil {
+                print("no data")
+                completionHandler(false,nil,"no data")
+            }
+            
+            if success! {
+             
+                completionHandler(true,data,nil)
+                
+                
+            }
+            
+            
+            //            if success! {
+            //                performUIUpdatesOnMain {
+            //
+            //                    if self.imageCollection.count > 0 {
+            //                        self.imageCollection = []
+            //                    }
+            //                    self.imageCollection = data!
+            //                    print(data![0],"---")
+            //                    self.collectionView.reloadData()
+            //                }
+            //            }
+        }
+    }
+    
+    
+    static private func bboxString(_ latitude: Double, _ longitude: Double) -> String {
+        // ensure bbox is bounded by minimum and maximums
+//        let latitude = Double((annotations.first?.coordinate.latitude)!)
+//        let longitude = Double((annotations.first?.coordinate.longitude)!)
+//
+        if latitude != nil && longitude != nil  {
+            let minimumLon = max(longitude - Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.0)
+            let minimumLat = max(latitude - Constants.Flickr.SearchBBoxHalfHeight, Constants.Flickr.SearchLatRange.0)
+            let maximumLon = min(longitude + Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.1)
+            let maximumLat = min(latitude + Constants.Flickr.SearchBBoxHalfHeight, Constants.Flickr.SearchLatRange.1)
+            return "\(minimumLon),\(minimumLat),\(maximumLon),\(maximumLat)"
+        } else {
+            return "0,0,0,0"
+        }
+    }
+
     
 }

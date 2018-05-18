@@ -18,6 +18,7 @@ class PhotoAlbumViewController : UIViewController, UICollectionViewDelegate, UIC
     @IBOutlet weak var noImagesLabel: UILabel!
     var annotations: [MKAnnotation]!
     var imageCollection = [UIImage]()
+    var photosObject : [[String: AnyObject]]?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,64 +31,45 @@ class PhotoAlbumViewController : UIViewController, UICollectionViewDelegate, UIC
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        getImages()
         collectionView.reloadData()
+//        FlickFinderImagesAPI.getImages(Double((annotations.first?.coordinate.latitude)!), Double((annotations.first?.coordinate.longitude)!)){ (success,data,error) in
+//
+//            if error != nil {
+//                print(error)
+//            }
+//
+//            if success! {
+//
+//                performUIUpdatesOnMain {
+//                    self.photosObject = data
+//                }
+//
+//            }
+//
+//        }
+        
     }
     
     @IBAction func newCollectionPressed() {
-        getImages()
-    }
-    
-    func getImages(){
-        let methodParameters = [
-            Constants.FlickrParameterKeys.Method: Constants.FlickrParameterValues.SearchMethod,
-            Constants.FlickrParameterKeys.APIKey: Constants.FlickrParameterValues.APIKey,
-            Constants.FlickrParameterKeys.BoundingBox: bboxString(),
-            Constants.FlickrParameterKeys.SafeSearch: Constants.FlickrParameterValues.UseSafeSearch,
-            Constants.FlickrParameterKeys.Extras: Constants.FlickrParameterValues.MediumURL,
-            Constants.FlickrParameterKeys.Format: Constants.FlickrParameterValues.ResponseFormat,
-            Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback
-        ]
-        
-        FlickFinderImagesAPI.displayImageFromFlickrBySearch(methodParameters as [String : AnyObject]) { (success, data, error) in
+        FlickFinderImagesAPI.getImages(Double((annotations.first?.coordinate.latitude)!), Double((annotations.first?.coordinate.longitude)!)){ (success,data,error) in
             
             if error != nil {
-                print(error!)
-            }
-            
-            if data == nil {
-                print("no data")
+                print(error)
             }
             
             if success! {
+                
                 performUIUpdatesOnMain {
-                    if self.imageCollection.count > 0 {
-                        self.imageCollection = []
-                    }
-                    self.imageCollection = data!
-                    print(data![0],"---")
+                    self.photosObject = data
                     self.collectionView.reloadData()
                 }
+                
             }
+            
         }
-    }
     
-    private func bboxString() -> String {
-        // ensure bbox is bounded by minimum and maximums
-        let latitude = Double((annotations.first?.coordinate.latitude)!)
-        let longitude = Double((annotations.first?.coordinate.longitude)!)
-        
-        if latitude != nil && longitude != nil  {
-            let minimumLon = max(longitude - Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.0)
-            let minimumLat = max(latitude - Constants.Flickr.SearchBBoxHalfHeight, Constants.Flickr.SearchLatRange.0)
-            let maximumLon = min(longitude + Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.1)
-            let maximumLat = min(latitude + Constants.Flickr.SearchBBoxHalfHeight, Constants.Flickr.SearchLatRange.1)
-            return "\(minimumLon),\(minimumLat),\(maximumLon),\(maximumLat)"
-        } else {
-            return "0,0,0,0"
-        }
-    }
     
+    }
 }
 
 
@@ -114,16 +96,56 @@ extension PhotoAlbumViewController : MKMapViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return imageCollection.count
+        if let photosObject = photosObject {
+            return photosObject.count
+        }else{
+            return 0
+        }
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCollectionViewCell", for: indexPath) as! PhotoCollectionViewCell
-        if  imageCollection.count > 0 {
-            cell.imageView.image = imageCollection[indexPath.row]
-        }else{
-            noImagesLabel.isHidden = false
+        
+        let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+        activityIndicator.startAnimating()
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.center = cell.center
+        cell.contentView.addSubview(activityIndicator)
+        
+        performUIUpdatesOnMain {
+            if let photosArray = self.photosObject {
+                var i = 0
+                for array in photosArray {
+                    let imageUrlString = array[Constants.FlickrResponseKeys.MediumURL] as? String
+                    if let imageUrlString = imageUrlString{
+                        let imageURL = URL(string: imageUrlString)
+                        if let imageData = try? Data(contentsOf: imageURL!) {
+//                            if self.imageCollection.count == 0 {
+                                activityIndicator.stopAnimating()
+                                self.imageCollection.append(UIImage(data: imageData)!)
+                                cell.imageView.image = self.imageCollection[indexPath.row]
+                                print("f")
+//                            }
+                            i = i + 1
+                            if i == 10 {
+                                break
+                            }
+                        }
+                    }
+                    
+                }
+            }
         }
+     
+        
+
+        
+//        if  imageCollection.count > 0 {
+//            cell.imageView.image = imageCollection[indexPath.row]
+//        }else{
+//            noImagesLabel.isHidden = false
+//        }
         return cell
     }
     

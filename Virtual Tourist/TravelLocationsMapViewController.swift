@@ -70,6 +70,25 @@ extension TravelLocationsMapViewController : MKMapViewDelegate {
         }else{
             let vc = storyboard?.instantiateViewController(withIdentifier: "PhotoAlbumViewController") as? PhotoAlbumViewController
             vc?.annotations = mapView.selectedAnnotations
+            
+            FlickFinderImagesAPI.getImages(Double((annotations.first?.coordinate.latitude)!), Double((annotations.first?.coordinate.longitude)!)){ (success,data,error) in
+                
+                if error != nil {
+                    print(error)
+                }
+                
+                if success! {
+                    
+//                    performUIUpdatesOnMain {
+                        vc?.photosObject = data
+//                    }
+                    
+                }
+                
+            }
+            
+            
+            
             navigationController?.pushViewController(vc!, animated: true)
         }
         

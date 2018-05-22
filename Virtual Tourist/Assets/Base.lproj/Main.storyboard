@@ -76,7 +76,6 @@
                         <outlet property="editButton" destination="0RO-Iu-97M" id="n0q-i9-cet"/>
                         <outlet property="gesture" destination="sWI-vV-Uwt" id="gKz-tj-Dav"/>
                         <outlet property="mapView" destination="tAE-rH-KnR" id="1je-fr-u4a"/>
-                        <segue destination="dW4-CH-DV6" kind="show" id="j5h-In-I9V"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -86,24 +85,24 @@
                     </connections>
                 </pongPressGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="80.799999999999997" y="124.58770614692655"/>
+            <point key="canvasLocation" x="185" y="122"/>
         </scene>
-        <!--Photo Album View Controller-->
+        <!--Photos Album View Controller-->
         <scene sceneID="B8a-5j-GlW">
             <objects>
-                <viewController storyboardIdentifier="PhotoAlbumViewController" id="dW4-CH-DV6" customClass="PhotoAlbumViewController" customModule="Virtual_Tourist" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PhotosAlbumViewController" id="dW4-CH-DV6" customClass="PhotosAlbumViewController" customModule="Virtual_Tourist" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="xLd-Li-mOp">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="mpI-kW-yyD">
-                                <rect key="frame" x="0.0" y="64" width="375" height="120"/>
+                                <rect key="frame" x="0.0" y="20" width="375" height="120"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="120" id="5Tv-bm-IYx"/>
                                 </constraints>
                             </mapView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="O1J-jS-WR4">
-                                <rect key="frame" x="0.0" y="186" width="375" height="431"/>
+                                <rect key="frame" x="0.0" y="142" width="375" height="475"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="fXq-PD-GPk">
                                     <size key="itemSize" width="118" height="117"/>
@@ -122,17 +121,26 @@
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="pWJ-od-oRY">
                                                     <rect key="frame" x="0.0" y="0.0" width="118" height="117"/>
                                                 </imageView>
+                                                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="DiX-To-ckC">
+                                                    <rect key="frame" x="0.0" y="0.0" width="118" height="117"/>
+                                                </activityIndicatorView>
                                             </subviews>
                                         </view>
+                                        <color key="backgroundColor" red="1" green="0.62242296009999998" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="trailing" secondItem="pWJ-od-oRY" secondAttribute="trailing" id="8KO-HZ-kGt"/>
                                             <constraint firstItem="pWJ-od-oRY" firstAttribute="centerX" secondItem="xYd-eR-XnA" secondAttribute="centerX" id="B5Y-3W-6vU"/>
                                             <constraint firstItem="pWJ-od-oRY" firstAttribute="top" secondItem="xYd-eR-XnA" secondAttribute="top" id="IWJ-7v-iy6"/>
+                                            <constraint firstItem="DiX-To-ckC" firstAttribute="leading" secondItem="xYd-eR-XnA" secondAttribute="leading" id="VTc-IO-c94"/>
+                                            <constraint firstItem="DiX-To-ckC" firstAttribute="top" secondItem="xYd-eR-XnA" secondAttribute="top" id="aHZ-Dg-Vja"/>
+                                            <constraint firstAttribute="trailing" secondItem="DiX-To-ckC" secondAttribute="trailing" id="jD6-0k-jA5"/>
                                             <constraint firstAttribute="bottom" secondItem="pWJ-od-oRY" secondAttribute="bottom" id="mYI-Uu-a7R"/>
+                                            <constraint firstAttribute="bottom" secondItem="DiX-To-ckC" secondAttribute="bottom" id="qXm-b3-P8f"/>
                                             <constraint firstItem="pWJ-od-oRY" firstAttribute="leading" secondItem="xYd-eR-XnA" secondAttribute="leading" id="tsc-r3-aXt"/>
                                             <constraint firstItem="pWJ-od-oRY" firstAttribute="centerY" secondItem="xYd-eR-XnA" secondAttribute="centerY" id="wFk-ac-4i9"/>
                                         </constraints>
                                         <connections>
+                                            <outlet property="activityIndicator" destination="DiX-To-ckC" id="ovm-d9-sdf"/>
                                             <outlet property="imageView" destination="pWJ-od-oRY" id="Zp9-J0-eaU"/>
                                         </connections>
                                     </collectionViewCell>
@@ -140,10 +148,11 @@
                                 <connections>
                                     <outlet property="dataSource" destination="dW4-CH-DV6" id="WOr-FT-DTC"/>
                                     <outlet property="delegate" destination="dW4-CH-DV6" id="CE4-BD-b4a"/>
+                                    <outlet property="prefetchDataSource" destination="dW4-CH-DV6" id="O2z-T5-ylz"/>
                                 </connections>
                             </collectionView>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No Images Avaible for the location" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="a7C-51-ead">
-                                <rect key="frame" x="0.0" y="186" width="375" height="431"/>
+                                <rect key="frame" x="0.0" y="142" width="375" height="475"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="27"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>

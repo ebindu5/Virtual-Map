@@ -12,109 +12,19 @@ import CoreLocation
 
 class FlickFinderImagesAPI: UIViewController {
     
-    static func fetchImagesfromAPI(_ latitude: CLLocationDegrees , _ longitude: CLLocationDegrees, completionHandlerForFetchImages: @escaping (_ success: Bool, _ response: [UIImage], _ error: String?) -> Void){
-        
-        let url = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=9116ef876df135dcb30cb3a92fe06bfd&lat=48.8566&lon=2.3522&extras=url_m&format=json&nojsoncallback=1&auth_token=72157669088444118-a4fbcb2a9242fcf4&api_sig=ff30c85fa37219f15071ddc3d70f641f"
-        
-        let urlRequest = URLRequest(url: URL(string: url)!)
-        
-        let task = URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
-            
-            guard error == nil else{
-                print(error?.localizedDescription)
-                return
-            }
-            
-            guard data != nil else{
-                print("no data")
-                return
-            }
-            
-            if let parsedResult = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments) as? AnyObject {
-                
-                if let photos = parsedResult!["photos"] as? [String: AnyObject] {
-                    
-                    if let pages = photos["pages"] as? Int {
-                        
-                        let randomPage = Int(arc4random_uniform(UInt32(pages)))
-                        
-                        let url = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=9116ef876df135dcb30cb3a92fe06bfd&lat=48.8566&lon=2.3522&extras=url_m&page=\(randomPage)&format=json&nojsoncallback=1&auth_token=72157669090180858-dc2a3a3a8dc325f1&api_sig=12be8e08f5a013956e3f267a84dca41c"
-                        
-                        let urlRequest = URLRequest(url: URL(string: url)!)
-                        
-                        
-                        let task = URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
-                            
-                            guard error == nil else{
-                                print(error?.localizedDescription)
-                                return
-                            }
-                            
-                            guard data != nil else{
-                                print("no data")
-                                return
-                            }
-                            
-                            if let parsedResult = try? JSONSerialization.jsonObject(with: data!, options: .allowFragments) as? AnyObject {
-                                
-                                if let photos = parsedResult!["photos"] as? [String: AnyObject] , let photo = photos["photo"] as? [[String:AnyObject]] {
-                                    
-                                    if photo.count == 0 {
-                                        completionHandlerForFetchImages(false,[],"no Images")
-                                    }else{
-                                        var finalImages = [UIImage]()
-                                        for array in photo {
-                                            
-                                            if let url = URL(string: array["url_m"] as! String){
-                                                let nw = NSData(contentsOf: url)
-                                                
-                                                finalImages.append(UIImage(data: nw! as Data)!)
-                                                
-                                            }
-                                            
-                                        }
-                                        
-                                        completionHandlerForFetchImages(true,finalImages,nil)
-                                    }
-                                }
-                                
-                            }
-                            
-                            
-                        }
-                        task.resume()
-                    }
-                    
-                }else{
-                    completionHandlerForFetchImages(false,[],"no Images")
-                }
-                
-            }
-            
-            
-        }
-        task.resume()
-        
-    }
-    
     
     static func displayImageFromFlickrBySearch(_ methodParameters: [String: AnyObject], completionHandlerForSearchImage: @escaping (_ success : Bool?, _ data: [[String:AnyObject]]?,_ error: String?)-> Void){
         
         // create session and request
         let session = URLSession.shared
         let request = URLRequest(url: flickrURLFromParameters(methodParameters))
-       
+        
         // create network request
         let task = session.dataTask(with: request) { (data, response, error) in
             
             // if an error occurs, print it and re-enable the UI
             func displayError(_ error: String) {
                 print(error)
-                performUIUpdatesOnMain {
-                    //                    self.setUIEnabled(true)
-                    //                    self.photoTitleLabel.text = "No photo returned. Try again."
-                    //                    self.photoImageView.image = nil
-                }
             }
             
             /* GUARD: Was there an error? */
@@ -178,7 +88,6 @@ class FlickFinderImagesAPI: UIViewController {
                     return
                 }
                 completionHandlerForSearchImage(true, result, nil)
-                
             }
         }
         
@@ -186,7 +95,7 @@ class FlickFinderImagesAPI: UIViewController {
         task.resume()
     }
     
-
+    
     
     static func displayImageFromFlickrBySearch(_ methodParameters: [String: AnyObject], withPageNumber: Int, completionHandlerforImageFromFlickr: @escaping (_ success: Bool?, _ data: [[String: AnyObject]]?, _ error: String?) -> Void) {
         
@@ -204,11 +113,7 @@ class FlickFinderImagesAPI: UIViewController {
             // if an error occurs, print it and re-enable the UI
             func displayError(_ error: String) {
                 print(error)
-                performUIUpdatesOnMain {
-                    //                    self.setUIEnabled(true)
-                    //                    self.photoTitleLabel.text = "No photo returned. Try again."
-                    //                    self.photoImageView.image = nil
-                }
+                
             }
             
             /* GUARD: Was there an error? */
@@ -257,40 +162,27 @@ class FlickFinderImagesAPI: UIViewController {
             }
             
             if photosArray.count == 0 {
-                displayError("No Photos Found. Search Again.")
+                completionHandlerforImageFromFlickr(false, nil, "No photos Found")
                 return
             } else {
                 
-//                var finalImages = [UIImage]()
-//                for array in photosArray {
-//                   let imageUrlString = array[Constants.FlickrResponseKeys.MediumURL] as? String
-//                    if let imageUrlString = imageUrlString{
-//                        let imageURL = URL(string: imageUrlString)
-//                        print(imageURL)
-//                        if let imageData = try? Data(contentsOf: imageURL!) {
-//                            if finalImages.count < 10 {
-//                                finalImages.append(UIImage(data: imageData)!)
-//                            }else{
-//                                break
-//                            }
-//
-//                        }
-//                    }
-//
-//                }
-
-//                if finalImages.count > 0 {
-                    completionHandlerforImageFromFlickr(true, photosArray, nil)
-//                }else{
-//                    completionHandlerforImageFromFlickr(true, nil, "no data")
-//                }
-                
+                completionHandlerforImageFromFlickr(true, getRandomImages(photosArray), nil)
             }
         }
         
         // start the task!
         task.resume()
     }
+    
+    static func getRandomImages(_ data: [[String: AnyObject]]?) -> [[String: AnyObject]]? {
+        var randomData = [[String: AnyObject]]()
+        for _ in 0..<30 {
+            let index = Int(arc4random_uniform(UInt32((data?.count)! - 1)))
+            randomData.append(data![index])
+        }
+        return randomData
+    }
+    
     
     // MARK: Helper for Creating a URL from Parameters
     
@@ -310,6 +202,7 @@ class FlickFinderImagesAPI: UIViewController {
         return components.url!
     }
     
+    
     static  func getImages(_ latitude: Double, _ longitude: Double, completionHandler: @escaping (_ success: Bool?, _ data : [[String:AnyObject]]?, _ error : String?)-> Void){
         let methodParameters = [
             Constants.FlickrParameterKeys.Method: Constants.FlickrParameterValues.SearchMethod,
@@ -325,51 +218,29 @@ class FlickFinderImagesAPI: UIViewController {
             
             if error != nil {
                 completionHandler(false,nil,error!)
+                return
             }
             
             if data == nil {
-                print("no data")
                 completionHandler(false,nil,"no data")
+                return
             }
             
             if success! {
-             
                 completionHandler(true,data,nil)
-                
-                
+                return
             }
-            
-            
-            //            if success! {
-            //                performUIUpdatesOnMain {
-            //
-            //                    if self.imageCollection.count > 0 {
-            //                        self.imageCollection = []
-            //                    }
-            //                    self.imageCollection = data!
-            //                    print(data![0],"---")
-            //                    self.collectionView.reloadData()
-            //                }
-            //            }
         }
     }
     
     
     static private func bboxString(_ latitude: Double, _ longitude: Double) -> String {
-        // ensure bbox is bounded by minimum and maximums
-//        let latitude = Double((annotations.first?.coordinate.latitude)!)
-//        let longitude = Double((annotations.first?.coordinate.longitude)!)
-//
-        if latitude != nil && longitude != nil  {
-            let minimumLon = max(longitude - Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.0)
-            let minimumLat = max(latitude - Constants.Flickr.SearchBBoxHalfHeight, Constants.Flickr.SearchLatRange.0)
-            let maximumLon = min(longitude + Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.1)
-            let maximumLat = min(latitude + Constants.Flickr.SearchBBoxHalfHeight, Constants.Flickr.SearchLatRange.1)
-            return "\(minimumLon),\(minimumLat),\(maximumLon),\(maximumLat)"
-        } else {
-            return "0,0,0,0"
-        }
+        let minimumLon = max(longitude - Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.0)
+        let minimumLat = max(latitude - Constants.Flickr.SearchBBoxHalfHeight, Constants.Flickr.SearchLatRange.0)
+        let maximumLon = min(longitude + Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.1)
+        let maximumLat = min(latitude + Constants.Flickr.SearchBBoxHalfHeight, Constants.Flickr.SearchLatRange.1)
+        return "\(minimumLon),\(minimumLat),\(maximumLon),\(maximumLat)"
     }
-
+    
     
 }

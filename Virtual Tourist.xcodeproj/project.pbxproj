@@ -12,11 +12,15 @@
 		90C6923A20AD47E500D9C482 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 90C6923820AD47E500D9C482 /* Main.storyboard */; };
 		90C6923C20AD47E900D9C482 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 90C6923B20AD47E900D9C482 /* Assets.xcassets */; };
 		90C6923F20AD47E900D9C482 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 90C6923D20AD47E900D9C482 /* LaunchScreen.storyboard */; };
-		90C6924720AD52EC00D9C482 /* PhotoAlbumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C6924620AD52EC00D9C482 /* PhotoAlbumViewController.swift */; };
+		90C6924720AD52EC00D9C482 /* PhotosAlbumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C6924620AD52EC00D9C482 /* PhotosAlbumViewController.swift */; };
 		90C6924A20AD54F800D9C482 /* PhotoCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C6924920AD54F800D9C482 /* PhotoCollectionViewCell.swift */; };
 		90C6924D20AE350A00D9C482 /* FlickFinderImages API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C6924C20AE350A00D9C482 /* FlickFinderImages API.swift */; };
 		90C6924F20AE353000D9C482 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C6924E20AE353000D9C482 /* Constants.swift */; };
 		90C6925120AE76FA00D9C482 /* GCD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C6925020AE76FA00D9C482 /* GCD.swift */; };
+		90C6925320AFADF600D9C482 /* photoAlbumData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C6925220AFADF600D9C482 /* photoAlbumData.swift */; };
+		90C6925520AFAE8D00D9C482 /* PhotoAlbumStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C6925420AFAE8D00D9C482 /* PhotoAlbumStruct.swift */; };
+		90D3670620B4DE990022E88C /* VirtualTouristModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 90D3670420B4DE990022E88C /* VirtualTouristModel.xcdatamodeld */; };
+		90D3670820B4DFE00022E88C /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90D3670720B4DFE00022E88C /* DataController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,11 +31,15 @@
 		90C6923B20AD47E900D9C482 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		90C6923E20AD47E900D9C482 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		90C6924020AD47E900D9C482 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		90C6924620AD52EC00D9C482 /* PhotoAlbumViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoAlbumViewController.swift; sourceTree = "<group>"; };
+		90C6924620AD52EC00D9C482 /* PhotosAlbumViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosAlbumViewController.swift; sourceTree = "<group>"; };
 		90C6924920AD54F800D9C482 /* PhotoCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCollectionViewCell.swift; sourceTree = "<group>"; };
 		90C6924C20AE350A00D9C482 /* FlickFinderImages API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FlickFinderImages API.swift"; sourceTree = "<group>"; };
 		90C6924E20AE353000D9C482 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		90C6925020AE76FA00D9C482 /* GCD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCD.swift; sourceTree = "<group>"; };
+		90C6925220AFADF600D9C482 /* photoAlbumData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = photoAlbumData.swift; sourceTree = "<group>"; };
+		90C6925420AFAE8D00D9C482 /* PhotoAlbumStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoAlbumStruct.swift; sourceTree = "<group>"; };
+		90D3670520B4DE990022E88C /* VirtualTouristModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = VirtualTouristModel.xcdatamodel; sourceTree = "<group>"; };
+		90D3670720B4DFE00022E88C /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,7 +74,7 @@
 			children = (
 				90C6923420AD47E500D9C482 /* AppDelegate.swift */,
 				90C6924B20AE339000D9C482 /* Model */,
-				90C6924620AD52EC00D9C482 /* PhotoAlbumViewController.swift */,
+				90C6924620AD52EC00D9C482 /* PhotosAlbumViewController.swift */,
 				90C6923620AD47E500D9C482 /* TravelLocationsMapViewController.swift */,
 				90C6924920AD54F800D9C482 /* PhotoCollectionViewCell.swift */,
 				90C6924820AD530400D9C482 /* Assets */,
@@ -91,6 +99,10 @@
 				90C6924C20AE350A00D9C482 /* FlickFinderImages API.swift */,
 				90C6924E20AE353000D9C482 /* Constants.swift */,
 				90C6925020AE76FA00D9C482 /* GCD.swift */,
+				90C6925220AFADF600D9C482 /* photoAlbumData.swift */,
+				90C6925420AFAE8D00D9C482 /* PhotoAlbumStruct.swift */,
+				90D3670420B4DE990022E88C /* VirtualTouristModel.xcdatamodeld */,
+				90D3670720B4DFE00022E88C /* DataController.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -167,10 +179,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				90C6925120AE76FA00D9C482 /* GCD.swift in Sources */,
+				90C6925520AFAE8D00D9C482 /* PhotoAlbumStruct.swift in Sources */,
 				90C6923720AD47E500D9C482 /* TravelLocationsMapViewController.swift in Sources */,
 				90C6924A20AD54F800D9C482 /* PhotoCollectionViewCell.swift in Sources */,
 				90C6923520AD47E500D9C482 /* AppDelegate.swift in Sources */,
-				90C6924720AD52EC00D9C482 /* PhotoAlbumViewController.swift in Sources */,
+				90D3670820B4DFE00022E88C /* DataController.swift in Sources */,
+				90C6925320AFADF600D9C482 /* photoAlbumData.swift in Sources */,
+				90D3670620B4DE990022E88C /* VirtualTouristModel.xcdatamodeld in Sources */,
+				90C6924720AD52EC00D9C482 /* PhotosAlbumViewController.swift in Sources */,
 				90C6924D20AE350A00D9C482 /* FlickFinderImages API.swift in Sources */,
 				90C6924F20AE353000D9C482 /* Constants.swift in Sources */,
 			);
@@ -370,6 +386,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		90D3670420B4DE990022E88C /* VirtualTouristModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				90D3670520B4DE990022E88C /* VirtualTouristModel.xcdatamodel */,
+			);
+			currentVersion = 90D3670520B4DE990022E88C /* VirtualTouristModel.xcdatamodel */;
+			path = VirtualTouristModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 90C6922920AD47E500D9C482 /* Project object */;
 }

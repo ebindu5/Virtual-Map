@@ -38,7 +38,6 @@ class PhotosAlbumViewController : UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         mapView.showsUserLocation = true
-        
         let fetchRequest : NSFetchRequest<PinPhotos> = PinPhotos.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "pins == %@", selectedPin)
         let sortDescriptors = NSSortDescriptor(key: "creationDate", ascending: false)
@@ -57,6 +56,7 @@ class PhotosAlbumViewController : UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         mapView.addAnnotation(selectedPin)
+        noImagesLabel.isHidden = true
         if pics.count == 0 {
             getNewImageSet()
         }else{
@@ -85,9 +85,13 @@ class PhotosAlbumViewController : UIViewController {
                 }
                 if success! {
                     self.photosObject = data
-                    self.isLoading = true
-                    self.collectionView.reloadData()
-                    self.getImages()
+                    if data?.count == 0 {
+                        self.noImagesLabel.isHidden = false
+                    } else{
+                        self.isLoading = true
+                        self.collectionView.reloadData()
+                        self.getImages()
+                    }
                 }
             }
         }
@@ -160,12 +164,6 @@ extension PhotosAlbumViewController : UICollectionViewDelegate, UICollectionView
             itemCount =  photosObject?.count ?? 0
         } else {
             itemCount = pics.count
-        }
-        
-        if itemCount == 0 {
-            noImagesLabel.isHidden = false
-        }else{
-            noImagesLabel.isHidden = true
         }
         
         return itemCount

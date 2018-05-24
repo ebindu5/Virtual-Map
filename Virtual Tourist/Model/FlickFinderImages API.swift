@@ -176,7 +176,7 @@ class FlickFinderImagesAPI: UIViewController {
     
     static func getRandomImages(_ data: [[String: AnyObject]]?) -> [[String: AnyObject]]? {
         var randomData = [[String: AnyObject]]()
-        for _ in 0..<30 {
+        for _ in 0..<1 {
             let index = Int(arc4random_uniform(UInt32((data?.count)! - 1)))
             randomData.append(data![index])
         }

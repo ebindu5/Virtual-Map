@@ -11,7 +11,7 @@ import MapKit
 import UIKit
 import CoreData
 
-class PhotosAlbumViewController : UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, NSFetchedResultsControllerDelegate {
+class PhotosAlbumViewController : UIViewController, NSFetchedResultsControllerDelegate {
     
     @IBOutlet var mapView : MKMapView!
     @IBOutlet var newCollectionButton: UIButton!
@@ -21,7 +21,7 @@ class PhotosAlbumViewController : UIViewController, UICollectionViewDelegate, UI
     var photosObject : [[String: AnyObject]]?
     var selectedPhotos : [Int]!
     var selectedPin : Pins!
-    var photoCount: Int!
+//    var photoCount: Int!
     let annotation = MKPointAnnotation()
     var newImageForExistingPin = false
     var pinPhotos : PinPhotos!
@@ -61,7 +61,11 @@ class PhotosAlbumViewController : UIViewController, UICollectionViewDelegate, UI
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        getNewImageSet()
+        
+        if pics.count == 0 {
+            getNewImageSet()
+        }
+        
         collectionView.reloadData()
         mapView.addAnnotation(selectedPin)
         collectionView.reloadData()
@@ -87,7 +91,7 @@ class PhotosAlbumViewController : UIViewController, UICollectionViewDelegate, UI
                 
                 if success! {
                     self.photosObject = data
-                    self.photoCount = data?.count
+                    self.collectionView.reloadData()
                     self.getImages()
                 }
             }
@@ -102,8 +106,6 @@ class PhotosAlbumViewController : UIViewController, UICollectionViewDelegate, UI
                     let imageURL = URL(string: imageUrlString)
                     if let imageData = try? Data(contentsOf: imageURL!) {
                         performUIUpdatesOnMain {
-                            
-                            //                            PinPhotos(entity: PinPhotos.description(), insertInto: dataController.viewContext)
                             let pinData = PinPhotos(context: self.dataController.viewContext)
                             pinData.images = imageData
                             pinData.pins = self.selectedPin
@@ -121,7 +123,6 @@ class PhotosAlbumViewController : UIViewController, UICollectionViewDelegate, UI
                 }
             }
         }
-        //        }
     }
 }
 
@@ -143,68 +144,35 @@ extension PhotosAlbumViewController : MKMapViewDelegate {
         return pinView
     }
     
-    
+  
+}
+
+extension PhotosAlbumViewController : UICollectionViewDelegate, UICollectionViewDataSource{
+
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return photoCount ?? 0
+        return pics.count ?? (photosObject?.count)!
     }
-    
-    
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCollectionViewCell", for: indexPath) as! PhotoCollectionViewCell
-        //        print(pics[indexPath.row])
-        //
-        //        if (fetchResultController.sections?[indexPath.section].numberOfObjects)! > indexPath.row {
-        //        let pinData = fetchResultController.object(at: indexPath)
-        //
-        print(PinPhotos(context: dataController.viewContext))
+        
+//        print(PinPhotos(context: dataController.viewContext))
         performUIUpdatesOnMain {
             cell.activityIndicator.startAnimating()
-            //            if let images = pics {
             if indexPath.row < (self.pics.count) {
-                //TODO:
                 cell.imageView.image = UIImage(data: self.pics[indexPath.row].images!)
             }else{
                 cell.imageView.image = UIImage(named: "placeholder")
             }
             cell.activityIndicator.stopAnimating()
-            //            }
-            
         }
-        
-        
-        //        performUIUpdatesOnMain {
-        //            cell.activityIndicator.startAnimating()
-        //                if let images = pinData.images {
-        //                    if indexPath.row < (images.count) {
-        //                        //TODO:
-        //                        cell.imageView.image = UIImage(data: images)
-        //                    }else{
-        //                        cell.imageView.image = UIImage(named: "placeholder")
-        //                    }
-        //                    cell.activityIndicator.stopAnimating()
-        //                }
-        //
-        //            }
-        //        }
         return cell
     }
     
-    
-    
-    //
-    //    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-    //        if photosObject?.count == pinPhotos[index].images?.count {
-    //            return true
-    //        }else{
-    //            return false
-    //        }
-    //    }
-    //
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
@@ -220,6 +188,8 @@ extension PhotosAlbumViewController : MKMapViewDelegate {
         }
     }
 }
+
+
 
 extension PhotosAlbumViewController {
     

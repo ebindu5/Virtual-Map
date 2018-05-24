@@ -61,6 +61,7 @@ class TravelLocationsMapViewController: UIViewController, NSFetchedResultsContro
                 let pin: Pins = Pins(context: dataController.viewContext)
                 pin.latitude = annotation.coordinate.latitude
                 pin.longitude = annotation.coordinate.longitude
+                pin.creationDate = Date()
                 
                 try? dataController.viewContext.save()
                 

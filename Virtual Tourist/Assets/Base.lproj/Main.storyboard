@@ -124,6 +124,10 @@
                                                 <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="DiX-To-ckC">
                                                     <rect key="frame" x="0.0" y="0.0" width="118" height="117"/>
                                                 </activityIndicatorView>
+                                                <view hidden="YES" alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kDn-Eo-rHq">
+                                                    <rect key="frame" x="0.0" y="0.0" width="118" height="117"/>
+                                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </view>
                                             </subviews>
                                         </view>
                                         <color key="backgroundColor" red="1" green="0.62242296009999998" blue="1" alpha="1" colorSpace="calibratedRGB"/>
@@ -131,17 +135,22 @@
                                             <constraint firstAttribute="trailing" secondItem="pWJ-od-oRY" secondAttribute="trailing" id="8KO-HZ-kGt"/>
                                             <constraint firstItem="pWJ-od-oRY" firstAttribute="centerX" secondItem="xYd-eR-XnA" secondAttribute="centerX" id="B5Y-3W-6vU"/>
                                             <constraint firstItem="pWJ-od-oRY" firstAttribute="top" secondItem="xYd-eR-XnA" secondAttribute="top" id="IWJ-7v-iy6"/>
+                                            <constraint firstAttribute="bottom" secondItem="kDn-Eo-rHq" secondAttribute="bottom" id="KnE-L7-0dU"/>
+                                            <constraint firstItem="kDn-Eo-rHq" firstAttribute="top" secondItem="xYd-eR-XnA" secondAttribute="top" id="M8S-Hs-fcZ"/>
+                                            <constraint firstItem="kDn-Eo-rHq" firstAttribute="leading" secondItem="xYd-eR-XnA" secondAttribute="leading" id="VAx-XK-bZs"/>
                                             <constraint firstItem="DiX-To-ckC" firstAttribute="leading" secondItem="xYd-eR-XnA" secondAttribute="leading" id="VTc-IO-c94"/>
                                             <constraint firstItem="DiX-To-ckC" firstAttribute="top" secondItem="xYd-eR-XnA" secondAttribute="top" id="aHZ-Dg-Vja"/>
                                             <constraint firstAttribute="trailing" secondItem="DiX-To-ckC" secondAttribute="trailing" id="jD6-0k-jA5"/>
                                             <constraint firstAttribute="bottom" secondItem="pWJ-od-oRY" secondAttribute="bottom" id="mYI-Uu-a7R"/>
                                             <constraint firstAttribute="bottom" secondItem="DiX-To-ckC" secondAttribute="bottom" id="qXm-b3-P8f"/>
+                                            <constraint firstAttribute="trailing" secondItem="kDn-Eo-rHq" secondAttribute="trailing" id="rH1-5n-TKr"/>
                                             <constraint firstItem="pWJ-od-oRY" firstAttribute="leading" secondItem="xYd-eR-XnA" secondAttribute="leading" id="tsc-r3-aXt"/>
                                             <constraint firstItem="pWJ-od-oRY" firstAttribute="centerY" secondItem="xYd-eR-XnA" secondAttribute="centerY" id="wFk-ac-4i9"/>
                                         </constraints>
                                         <connections>
                                             <outlet property="activityIndicator" destination="DiX-To-ckC" id="ovm-d9-sdf"/>
                                             <outlet property="imageView" destination="pWJ-od-oRY" id="Zp9-J0-eaU"/>
+                                            <outlet property="overlayView" destination="kDn-Eo-rHq" id="HVy-LQ-vQH"/>
                                         </connections>
                                     </collectionViewCell>
                                 </cells>

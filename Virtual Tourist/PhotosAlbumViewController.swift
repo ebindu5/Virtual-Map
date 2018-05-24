@@ -19,7 +19,7 @@ class PhotosAlbumViewController : UIViewController {
     @IBOutlet weak var noImagesLabel: UILabel!
     var index : Int!
     var photosObject : [[String: AnyObject]]?
-    var selectedPhotos : [Int]!
+    var selectedPhotos : [PinPhotos]!
     var selectedPin : Pins!
     let annotation = MKPointAnnotation()
     var newImageForExistingPin = false
@@ -65,7 +65,15 @@ class PhotosAlbumViewController : UIViewController {
             getNewImageSet()
             
         }else{
+            
+            coreDataAccess.deleteAllImages(selectedPhotos)
+            if let selectedPics = selectedPhotos {
+                for photo in selectedPics {
+                    pics = pics.filter{ $0 != photo}
+                }
+            }
             newCollectionButton.setTitle("New Collection", for: .normal)
+            collectionView.reloadData()
         }
     }
     
@@ -162,6 +170,14 @@ extension PhotosAlbumViewController : UICollectionViewDelegate, UICollectionView
         
         performUIUpdatesOnMain {
             cell.activityIndicator.startAnimating()
+            if self.selectedPhotos != nil {
+                if self.selectedPhotos.contains(self.pics[indexPath.row]){
+                    cell.overlayView.isHidden = false
+                }else{
+                    cell.overlayView.isHidden = true
+                }
+            }
+       
             if indexPath.row < (self.pics.count) {
                 cell.imageView.image = UIImage(data: self.pics[indexPath.row].images!)
             }else{
@@ -173,17 +189,25 @@ extension PhotosAlbumViewController : UICollectionViewDelegate, UICollectionView
     }
     
     
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as? PhotoCollectionViewCell
+        cell?.overlayView.isHidden = true
+        selectedPhotos = selectedPhotos.filter{ $0 != pics[indexPath.row]}
+        if (selectedPhotos) == nil {
+            newCollectionButton.setTitle("New Collection", for: .normal)
+        }
+    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        let cell = collectionView.cellForItem(at: indexPath)
-        cell?.layer.borderWidth = 2.0
-        cell?.layer.borderColor = UIColor.blue.cgColor
+        let cell = collectionView.cellForItem(at: indexPath) as? PhotoCollectionViewCell
         newCollectionButton.setTitle("Remove Selected Pictures", for: .normal)
-        
+        cell?.overlayView.isHidden = false
+        print(indexPath.row)
         if (selectedPhotos) != nil {
-            self.selectedPhotos.append(indexPath.row)
+            self.selectedPhotos.append(pics[indexPath.row])
         }else{
-            selectedPhotos = [indexPath.row]
+            selectedPhotos = [pics[indexPath.row]]
         }
     }
 }

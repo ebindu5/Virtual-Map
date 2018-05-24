@@ -91,7 +91,6 @@ extension TravelLocationsMapViewController : MKMapViewDelegate {
     
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        let selectedAnnotation = view.annotation
         if  let index = pins.index(where: { (aPin) -> Bool in
             (aPin.latitude == view.annotation?.coordinate.latitude) &&
                 (aPin.longitude == view.annotation?.coordinate.longitude) })  {

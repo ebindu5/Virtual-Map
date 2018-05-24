@@ -26,7 +26,7 @@ class FlickFinderImagesAPI: UIViewController {
             func displayError(_ error: String) {
                 print(error)
             }
-            
+
             /* GUARD: Was there an error? */
             guard (error == nil) else {
                 displayError("There was an error with your request: \(error)")

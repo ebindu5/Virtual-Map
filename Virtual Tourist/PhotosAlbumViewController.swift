@@ -9,8 +9,9 @@
 import Foundation
 import MapKit
 import UIKit
+import CoreData
 
-class PhotosAlbumViewController : UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
+class PhotosAlbumViewController : UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, NSFetchedResultsControllerDelegate {
     
     @IBOutlet var mapView : MKMapView!
     @IBOutlet var newCollectionButton: UIButton!
@@ -19,44 +20,50 @@ class PhotosAlbumViewController : UIViewController, UICollectionViewDelegate, UI
     var index : Int!
     var photosObject : [[String: AnyObject]]?
     var selectedPhotos : [Int]!
-    var selectedPin : CLLocationCoordinate2D!
+    var selectedPin : Pins!
     var photoCount: Int!
     let annotation = MKPointAnnotation()
     var newImageForExistingPin = false
+    var pinPhotos : PinPhotos!
+    var pics = [PinPhotos]()
+    var dataController : DataController!
+    var fetchResultController: NSFetchedResultsController<PinPhotos>!
+    var saveNotificationToken : Any?
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         collectionView.allowsMultipleSelection = true
         mapView.delegate = self
         collectionView.delegate = self
         collectionView.dataSource = self
         mapView.showsUserLocation = true
         
-        if photoCount == 0 {
-            noImagesLabel.isHidden = true
-        }else{
-            noImagesLabel.isHidden = false
+        let fetchRequest : NSFetchRequest<PinPhotos> = PinPhotos.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "pins == %@", selectedPin)
+        let sortDescriptors = NSSortDescriptor(key: "creationDate", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptors]
+        if let result = try? dataController.viewContext.fetch(fetchRequest) {
+            pics = result
         }
+        collectionView.reloadData()
+        addNotificationObserver()
+    }
+    
+    deinit {
+        removeNotificationObserver()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        fetchResultController = nil
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if newImageForExistingPin {
-            getNewImageSet()
-        }
-        if let index = photoAlbumData.pinPhotoAlbum.index(where: {($0.selectedPin?.latitude == selectedPin?.latitude && $0.selectedPin?.longitude == selectedPin?.longitude)}) {
-            self.index = index
-            //
-        }else{
-            index = 0
-        }
-        
-        annotation.coordinate = selectedPin
-        mapView.addAnnotation(annotation)
-        
-        
-        getImages()
+        getNewImageSet()
+        collectionView.reloadData()
+        mapView.addAnnotation(selectedPin)
         collectionView.reloadData()
     }
     
@@ -68,59 +75,53 @@ class PhotosAlbumViewController : UIViewController, UICollectionViewDelegate, UI
             
         }else{
             newCollectionButton.setTitle("New Collection", for: .normal)
-            //            collectionView.reloadData()
         }
     }
     
     func getNewImageSet(){
-        photoAlbumData.pinPhotoAlbum[index].images = nil
-        //        photoAlbumData.pinPhotoAlbum[index].photosObject = nil
-        FlickFinderImagesAPI.getImages(Double(annotation.coordinate.latitude), Double(annotation.coordinate.longitude)){ (success,data,error) in
+        FlickFinderImagesAPI.getImages(Double(self.selectedPin.latitude), Double(self.selectedPin.longitude)){ (success,data,error) in
             performUIUpdatesOnMain {
                 if error != nil {
                     self.noImagesLabel.isHidden = false
                 }
+                
                 if success! {
                     self.photosObject = data
+                    self.photoCount = data?.count
                     self.getImages()
-                    self.collectionView.reloadData()
                 }
             }
         }
     }
     
     func getImages(){
-       
-        if photoAlbumData.pinPhotoAlbum[index].images == nil {
-            performUIUpdatesOnMain {
-                self.newCollectionButton.isEnabled = false
-            }
-            if let photoObjects = self.photosObject {
-                DispatchQueue.global(qos: .default).async {
-                    for object in photoObjects {
-                        if let imageUrlString = object[Constants.FlickrResponseKeys.MediumURL] as?  String{
-                            var pImage = UIImage()
-                            let imageURL = URL(string: imageUrlString)
-                            if let imageData = try? Data(contentsOf: imageURL!) {
-                                pImage = UIImage(data: imageData)!
-                                if  photoAlbumData.pinPhotoAlbum[self.index].images != nil {
-                                    photoAlbumData.pinPhotoAlbum[self.index].images?.append(pImage)
-                                    
-                                }else{
-                                    photoAlbumData.pinPhotoAlbum[self.index] = PhotoAlbumStruct( selectedPin: self.selectedPin, images: [pImage])
-                                }
-                                
-                                performUIUpdatesOnMain {
-                                    if self.photosObject?.count == photoAlbumData.pinPhotoAlbum[self.index].images?.count {
-                                        self.newCollectionButton.isEnabled = true
-                                    }
-                                }
+        
+        if let photoObjects = self.photosObject {
+            for objects in photoObjects {
+                if let imageUrlString = objects[Constants.FlickrResponseKeys.MediumURL] as?  String{
+                    let imageURL = URL(string: imageUrlString)
+                    if let imageData = try? Data(contentsOf: imageURL!) {
+                        performUIUpdatesOnMain {
+                            
+                            //                            PinPhotos(entity: PinPhotos.description(), insertInto: dataController.viewContext)
+                            let pinData = PinPhotos(context: self.dataController.viewContext)
+                            pinData.images = imageData
+                            pinData.pins = self.selectedPin
+                            pinData.creationDate = Date()
+                            self.pics.append(pinData)
+                            
+                            do {
+                                try self.dataController.viewContext.save()
+                            } catch {
+                                print("Failed saving")
                             }
+                            self.collectionView.reloadData()
                         }
                     }
                 }
             }
         }
+        //        }
     }
 }
 
@@ -148,54 +149,62 @@ extension PhotosAlbumViewController : MKMapViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if photosObject != nil {
-            let count = photosObject?.count
-            if count == 0 {
-                noImagesLabel.isHidden = false
-                return 0
-            }else{
-                noImagesLabel.isHidden = true
-                return count!
-            }
-        }else{
-            noImagesLabel.isHidden = true
-            return photoCount ?? 0
-        }
-        
+        return photoCount ?? 0
     }
     
     
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCollectionViewCell", for: indexPath) as! PhotoCollectionViewCell
+        //        print(pics[indexPath.row])
+        //
+        //        if (fetchResultController.sections?[indexPath.section].numberOfObjects)! > indexPath.row {
+        //        let pinData = fetchResultController.object(at: indexPath)
+        //
+        print(PinPhotos(context: dataController.viewContext))
         performUIUpdatesOnMain {
             cell.activityIndicator.startAnimating()
-            if let images = photoAlbumData.pinPhotoAlbum[self.index].images {
-                if indexPath.row < images.count {
-                    cell.imageView.image = images[indexPath.row]
-                }else{
-                    cell.imageView.image = UIImage(named: "placeholder")
-                }
-                cell.activityIndicator.stopAnimating()
+            //            if let images = pics {
+            if indexPath.row < (self.pics.count) {
+                //TODO:
+                cell.imageView.image = UIImage(data: self.pics[indexPath.row].images!)
             }else{
                 cell.imageView.image = UIImage(named: "placeholder")
             }
+            cell.activityIndicator.stopAnimating()
+            //            }
+            
         }
+        
+        
+        //        performUIUpdatesOnMain {
+        //            cell.activityIndicator.startAnimating()
+        //                if let images = pinData.images {
+        //                    if indexPath.row < (images.count) {
+        //                        //TODO:
+        //                        cell.imageView.image = UIImage(data: images)
+        //                    }else{
+        //                        cell.imageView.image = UIImage(named: "placeholder")
+        //                    }
+        //                    cell.activityIndicator.stopAnimating()
+        //                }
+        //
+        //            }
+        //        }
         return cell
     }
     
     
     
-    
-    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        if photosObject?.count == photoAlbumData.pinPhotoAlbum[index].images?.count {
-            return true
-        }else{
-            return false
-        }
-    }
-    
+    //
+    //    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+    //        if photosObject?.count == pinPhotos[index].images?.count {
+    //            return true
+    //        }else{
+    //            return false
+    //        }
+    //    }
+    //
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
@@ -209,12 +218,51 @@ extension PhotosAlbumViewController : MKMapViewDelegate {
         }else{
             selectedPhotos = [indexPath.row]
         }
-        
-        
+    }
+}
+
+extension PhotosAlbumViewController {
+    
+    func addNotificationObserver(){
+        removeNotificationObserver()
+        NotificationCenter.default.addObserver(forName: .NSManagedObjectContextObjectsDidChange, object: dataController.viewContext, queue: nil, using: handleNotificationObserver(notification:))
+    }
+    
+    func removeNotificationObserver(){
+        if let token = saveNotificationToken {
+            NotificationCenter.default.removeObserver(token)
+        }
+    }
+    
+    func reloadData(){
+        collectionView.reloadData()
+    }
+    func handleNotificationObserver(notification: Notification){
+        DispatchQueue.main.async {
+            self.reloadData()
+        }
     }
     
     
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        collectionView.reloadData()
+    }
+    
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        collectionView.reloadData()
+    }
     
     
-    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        
+        switch type {
+        case .delete:
+            collectionView.deleteItems(at: [indexPath!])
+            print("sf")
+        case .insert :
+            collectionView.reloadItems(at: [indexPath!])
+        default:
+            print("ad")
+        }
+    }
 }

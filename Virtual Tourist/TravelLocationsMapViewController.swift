@@ -9,19 +9,35 @@
 import UIKit
 import MapKit
 import CoreLocation
+import CoreData
 
-class TravelLocationsMapViewController: UIViewController {
+class TravelLocationsMapViewController: UIViewController, NSFetchedResultsControllerDelegate {
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var deleteLabel: UILabel!
     @IBOutlet weak var editButton: UIBarButtonItem!
     @IBOutlet var gesture: UILongPressGestureRecognizer!
-    var annotations = [MKPointAnnotation]()
+    var pins : [Pins] = []
+    var pinPhotos = [PinPhotos]()
+    var dataController : DataController!
+    var fetchResultController : NSFetchedResultsController<Pins>!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
+        
+        let fetchRequest: NSFetchRequest<Pins> = Pins.fetchRequest()
+        let sortDescriptors = NSSortDescriptor(key: "creationDate", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptors]
+        if let result = try? dataController.viewContext.fetch(fetchRequest) {
+            pins = result
+        }
+        
+        if pins.count != 0 {
+            self.mapView.addAnnotations(pins)
+        }
     }
+    
     
     @IBAction func editMapView(_ sender: Any) {
         
@@ -34,13 +50,24 @@ class TravelLocationsMapViewController: UIViewController {
         }
     }
     
-    @IBAction func createPin(_ sender: Any) {
-        let annotation = MKPointAnnotation()
-        let touchPoint = gesture.location(in: mapView)
-        annotation.coordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
-        photoAlbumData.pins.append(annotation.coordinate)
-        annotations.append(annotation)
-        mapView.addAnnotations(annotations)
+    @IBAction func createPin(_ gestureRecognizer: UILongPressGestureRecognizer) {
+        
+        if  deleteLabel.isHidden {
+            if gestureRecognizer.state == .began {
+                let annotation = MKPointAnnotation()
+                let touchPoint = gesture.location(in: mapView)
+                annotation.coordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
+                
+                let pin: Pins = Pins(context: dataController.viewContext)
+                pin.latitude = annotation.coordinate.latitude
+                pin.longitude = annotation.coordinate.longitude
+                
+                try? dataController.viewContext.save()
+                
+                pins.append(pin)
+                mapView.addAnnotation(annotation)
+            }
+        }
     }
     
 }
@@ -52,7 +79,6 @@ extension TravelLocationsMapViewController : MKMapViewDelegate {
         var pinView = mapView.dequeueReusableAnnotationView(withIdentifier: reuseId) as? MKPinAnnotationView
         if pinView == nil{
             pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseId)
-            pinView?.animatesDrop = true
             pinView?.pinTintColor = UIColor.red
         }else{
             pinView?.annotation = annotation
@@ -61,62 +87,76 @@ extension TravelLocationsMapViewController : MKMapViewDelegate {
     }
     
     
+    
+    
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        if !deleteLabel.isHidden {
-            if annotations.count > 0 {
-                mapView.removeAnnotations(mapView.selectedAnnotations)
-            }
+        
+        
+        if  let index = pins.index(where: { (aPin) -> Bool in
+            (aPin.latitude == view.annotation?.coordinate.latitude) &&
+                (aPin.longitude == view.annotation?.coordinate.longitude) })  {
+       
+            let selectedPin = pins[index]
             
-        }else{
-             let selectedAnnotations = self.mapView.selectedAnnotations
-             let selectedPin = selectedAnnotations.last?.coordinate
-            
-            let vc = self.storyboard?.instantiateViewController(withIdentifier: "PhotosAlbumViewController") as? PhotosAlbumViewController
-            
-            let latitude = (self.mapView.selectedAnnotations.last?.coordinate.latitude)!
-            let longitude = (self.mapView.selectedAnnotations.last?.coordinate.longitude)!
-           
-            let index = photoAlbumData.pinPhotoAlbum.index(where: {($0.selectedPin?.latitude == selectedPin?.latitude && $0.selectedPin?.longitude == selectedPin?.longitude)})
-            
-            var fetchData = true
-            if (index != nil) {
+            if !deleteLabel.isHidden {
+                    dataController.viewContext.delete(selectedPin)
+                    try? dataController.viewContext.save()
+                    pins.remove(at: index)
+                    mapView.removeAnnotation(view.annotation!)
+            }else{
                 
-                if photoAlbumData.pinPhotoAlbum[index!].images != nil {
-                    fetchData = false
-                    vc?.selectedPin = selectedPin
-                    vc?.photoCount = photoAlbumData.pinPhotoAlbum[index!].images?.count
-                    
-                }else{
-                    vc?.newImageForExistingPin = true
-                }
-                performUIUpdatesOnMain {
-                    self.navigationController?.pushViewController(vc!, animated: true)
-                }
-            }
-            
-            if fetchData {
+                //            let selectedPin = view.annotation?.coordinate
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "PhotosAlbumViewController") as? PhotosAlbumViewController
+                vc?.dataController = self.dataController
+                vc?.selectedPin = selectedPin
+                self.navigationController?.pushViewController(vc!, animated: true)
                 
-                FlickFinderImagesAPI.getImages(Double(latitude), Double((longitude))){ (success,data,error) in
-                    if error != nil {
-                        print(error!)
-                    }
-                    
-                    if success! {
-                        vc?.photosObject = data
-                    vc?.selectedPin = selectedPin
-                        vc?.photoCount = data?.count
-                    let photodata = PhotoAlbumStruct(selectedPin: selectedPin, images: nil)
-                    photoAlbumData.pinPhotoAlbum.append(photodata)
-                    performUIUpdatesOnMain {
-                        self.navigationController?.pushViewController(vc!, animated: true)
-                    }
-                    }
-                }
+                
+                
+                //            let latitude = (selectedPin?.latitude)!
+                //            let longitude = (selectedPin?.longitude)!
+                //
+                //            let index = pinPhotos.index(where: {($0.latitude == latitude) && ($0.longitude == longitude)})
+                //
+                //            var fetchData = true
+                //            if (index != nil) {
+                //                if pinPhotos[index!].images != nil {
+                //                    fetchData = false
+                //                    vc?.selectedPin = selectedPin
+                //                    vc?.photoCount = pinPhotos[index!].images?.count
+                //
+                //                }else{
+                //                    vc?.newImageForExistingPin = true
+                //                }
+                //                performUIUpdatesOnMain {
+                //                    self.navigationController?.pushViewController(vc!, animated: true)
+                //                }
+                //            }
+                //
+                //            if fetchData {
+                //
+                //                FlickFinderImagesAPI.getImages(Double(latitude), Double((longitude))){ (success,data,error) in
+                //                    if error != nil {
+                //                        print(error!)
+                //                    }
+                //
+                //                    if success! {
+                //                        vc?.photosObject = data
+                //                        vc?.selectedPin = selectedPin
+                //                        vc?.photoCount = data?.count
+                //                        //TODO:
+                //                        //                    let photodata = self.pinPhotos(selectedPin: selectedPin, images: nil)
+                //                        //                    photoAlbumData.pinPhotoAlbum.append(photodata)
+                //                        performUIUpdatesOnMain {
+                //                            self.navigationController?.pushViewController(vc!, animated: true)
+                //                        }
+                //                    }
+                //                }
             }
         }
     }
     
-
+    
     
 }
 

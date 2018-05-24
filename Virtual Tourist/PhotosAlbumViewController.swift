@@ -45,6 +45,7 @@ class PhotosAlbumViewController : UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         mapView.addAnnotation(selectedPin)
+        mapView.showAnnotations([selectedPin], animated: true)
         noImagesLabel.isHidden = true
         if pics.count == 0 {
              newCollectionButton.isEnabled = false
@@ -203,7 +204,6 @@ extension PhotosAlbumViewController : UICollectionViewDelegate, UICollectionView
         let cell = collectionView.cellForItem(at: indexPath) as? PhotoCollectionViewCell
         newCollectionButton.setTitle("Remove Selected Pictures", for: .normal)
         cell?.overlayView.isHidden = false
-        print(indexPath.row)
         if (selectedPhotos) != nil {
             self.selectedPhotos.append(pics[indexPath.row])
         }else{

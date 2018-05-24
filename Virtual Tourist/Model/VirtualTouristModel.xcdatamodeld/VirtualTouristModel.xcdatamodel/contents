@@ -2,7 +2,7 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14133" systemVersion="17E202" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="PinPhotos" representedClassName="PinPhotos" syncable="YES" codeGenerationType="class">
         <attribute name="creationDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
-        <attribute name="images" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="images" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
         <relationship name="pins" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Pins" inverseName="pinPhotos" inverseEntity="Pins" syncable="YES"/>
     </entity>
     <entity name="Pins" representedClassName="Pins" syncable="YES" codeGenerationType="class">
@@ -12,7 +12,7 @@
         <relationship name="pinPhotos" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="PinPhotos" inverseName="pins" inverseEntity="PinPhotos" syncable="YES"/>
     </entity>
     <elements>
-        <element name="PinPhotos" positionX="-54" positionY="-9" width="128" height="90"/>
+        <element name="PinPhotos" positionX="-54" positionY="-9" width="128" height="88"/>
         <element name="Pins" positionX="-308" positionY="-6" width="128" height="103"/>
     </elements>
 </model>

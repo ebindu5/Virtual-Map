@@ -41,7 +41,12 @@ class TravelLocationsMapViewController: UIViewController, NSFetchedResultsContro
         let latitude = defaults.double(forKey: "mapViewLatitude")
         let longitude = defaults.double(forKey: "mapViewLongitude")
         let center = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-        mapView.centerCoordinate = center
+        
+        let latitudeDelta =  defaults.double(forKey: "mapViewLatitudeDelta")
+        let longitudeDelta = defaults.double(forKey: "mapViewLongitudeDelta")
+        let span = MKCoordinateSpan(latitudeDelta: latitudeDelta, longitudeDelta: longitudeDelta)
+        let region = MKCoordinateRegion(center: center, span: span)
+        mapView.setRegion(region, animated: true)
         DispatchQueue.main.async {
             for item in self.mapView.selectedAnnotations {
                 self.mapView.deselectAnnotation(item, animated: false)
@@ -77,9 +82,11 @@ class TravelLocationsMapViewController: UIViewController, NSFetchedResultsContro
     
     
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-        print("......", mapView.centerCoordinate)
-        defaults.set(mapView.centerCoordinate.latitude, forKey: "mapViewLatitude")
         defaults.set(mapView.centerCoordinate.longitude, forKey: "mapViewLongitude")
+        defaults.set(mapView.centerCoordinate.latitude, forKey: "mapViewLatitude")
+        defaults.set(mapView.region.span.latitudeDelta, forKey: "mapViewLatitudeDelta")
+        defaults.set(mapView.region.span.longitudeDelta, forKey: "mapViewLongitudeDelta")
+        defaults.synchronize()
     }
     
 }

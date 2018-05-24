@@ -17,6 +17,7 @@ class PhotosAlbumViewController : UIViewController {
     @IBOutlet var newCollectionButton: UIButton!
     @IBOutlet var collectionView: UICollectionView!
     @IBOutlet weak var noImagesLabel: UILabel!
+    @IBOutlet weak var collectionFlowLayout: UICollectionViewFlowLayout!
     var index : Int!
     var photosObject : [[String: AnyObject]]?
     var selectedPhotos : [PinPhotos]!

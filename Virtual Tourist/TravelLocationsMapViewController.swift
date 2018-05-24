@@ -27,7 +27,6 @@ class TravelLocationsMapViewController: UIViewController, NSFetchedResultsContro
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
-        
         pins = coreDataAccess.fetchAllPins()
         
         if pins.count != 0 {
@@ -35,6 +34,14 @@ class TravelLocationsMapViewController: UIViewController, NSFetchedResultsContro
         }
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        DispatchQueue.main.async {
+            for item in self.mapView.selectedAnnotations {
+                self.mapView.deselectAnnotation(item, animated: false)
+            }
+        }
+    }
     
     @IBAction func editMapView(_ sender: Any) {
         
@@ -48,7 +55,6 @@ class TravelLocationsMapViewController: UIViewController, NSFetchedResultsContro
     }
     
     @IBAction func createPin(_ gestureRecognizer: UILongPressGestureRecognizer) {
-        
         if  deleteLabel.isHidden {
             if gestureRecognizer.state == .began {
                 let annotation = MKPointAnnotation()
@@ -80,10 +86,12 @@ extension TravelLocationsMapViewController : MKMapViewDelegate {
     }
     
     
+
+    
     
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        
+        let selectedAnnotation = view.annotation
         if  let index = pins.index(where: { (aPin) -> Bool in
             (aPin.latitude == view.annotation?.coordinate.latitude) &&
                 (aPin.longitude == view.annotation?.coordinate.longitude) })  {
@@ -99,7 +107,6 @@ extension TravelLocationsMapViewController : MKMapViewDelegate {
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "PhotosAlbumViewController") as? PhotosAlbumViewController
                 vc?.selectedPin = selectedPin
                 self.navigationController?.pushViewController(vc!, animated: true)
-
             }
         }
     }

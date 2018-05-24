@@ -21,8 +21,8 @@ class TravelLocationsMapViewController: UIViewController, NSFetchedResultsContro
     var pinPhotos = [PinPhotos]()
     var fetchResultController : NSFetchedResultsController<Pins>!
     private let coreDataAccess = CoreDataAccess.sharedInstance
+    let defaults = UserDefaults.standard
     
-
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,10 +32,16 @@ class TravelLocationsMapViewController: UIViewController, NSFetchedResultsContro
         if pins.count != 0 {
             self.mapView.addAnnotations(pins)
         }
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        print(mapView.centerCoordinate)
+        let latitude = defaults.double(forKey: "mapViewLatitude")
+        let longitude = defaults.double(forKey: "mapViewLongitude")
+        let center = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        mapView.centerCoordinate = center
         DispatchQueue.main.async {
             for item in self.mapView.selectedAnnotations {
                 self.mapView.deselectAnnotation(item, animated: false)
@@ -62,11 +68,18 @@ class TravelLocationsMapViewController: UIViewController, NSFetchedResultsContro
                 annotation.coordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
                 
                 if let pin = coreDataAccess.createPin(annotation.coordinate.latitude, annotation.coordinate.longitude){
-                   pins.append(pin)
+                    pins.append(pin)
                 }
                 mapView.addAnnotation(annotation)
             }
         }
+    }
+    
+    
+    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+        print("......", mapView.centerCoordinate)
+        defaults.set(mapView.centerCoordinate.latitude, forKey: "mapViewLatitude")
+        defaults.set(mapView.centerCoordinate.longitude, forKey: "mapViewLongitude")
     }
     
 }
@@ -86,7 +99,7 @@ extension TravelLocationsMapViewController : MKMapViewDelegate {
     }
     
     
-
+    
     
     
     
@@ -94,7 +107,7 @@ extension TravelLocationsMapViewController : MKMapViewDelegate {
         if  let index = pins.index(where: { (aPin) -> Bool in
             (aPin.latitude == view.annotation?.coordinate.latitude) &&
                 (aPin.longitude == view.annotation?.coordinate.longitude) })  {
-       
+            
             let selectedPin = pins[index]
             
             if !deleteLabel.isHidden {

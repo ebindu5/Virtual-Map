@@ -58,6 +58,7 @@ class PhotosAlbumViewController : UIViewController {
         mapView.addAnnotation(selectedPin)
         noImagesLabel.isHidden = true
         if pics.count == 0 {
+             newCollectionButton.isEnabled = false
             getNewImageSet()
         }else{
             collectionView.reloadData()
@@ -69,9 +70,14 @@ class PhotosAlbumViewController : UIViewController {
         if newCollectionButton.currentTitle == "New Collection" {
             newCollectionButton.isEnabled = false
             if pics.count != 0 {
+                for object in pics {
+                     try? dataController.viewContext.delete(object)
+                }
+                try? dataController.viewContext.save()
                 pics.removeAll()
             }
             getNewImageSet()
+            
         }else{
             newCollectionButton.setTitle("New Collection", for: .normal)
         }
@@ -124,6 +130,9 @@ class PhotosAlbumViewController : UIViewController {
                     
                     if (photoObjects.count == ( i + 1 )) {
                         self.isLoading = false
+                        performUIUpdatesOnMain {
+                            self.newCollectionButton.isEnabled = true
+                        }
                     }
                 }
             }

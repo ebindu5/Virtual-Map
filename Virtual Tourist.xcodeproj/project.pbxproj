@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		903E57C220B674C300901E16 /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 903E57C120B674C300901E16 /* CoreDataStack.swift */; };
+		903E57C220B674C300901E16 /* CoreDataAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = 903E57C120B674C300901E16 /* CoreDataAccess.swift */; };
 		90C6923520AD47E500D9C482 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C6923420AD47E500D9C482 /* AppDelegate.swift */; };
 		90C6923720AD47E500D9C482 /* TravelLocationsMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C6923620AD47E500D9C482 /* TravelLocationsMapViewController.swift */; };
 		90C6923A20AD47E500D9C482 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 90C6923820AD47E500D9C482 /* Main.storyboard */; };
@@ -25,7 +25,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		903E57C120B674C300901E16 /* CoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
+		903E57C120B674C300901E16 /* CoreDataAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataAccess.swift; sourceTree = "<group>"; };
 		90C6923120AD47E500D9C482 /* Virtual Tourist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Virtual Tourist.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		90C6923420AD47E500D9C482 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		90C6923620AD47E500D9C482 /* TravelLocationsMapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelLocationsMapViewController.swift; sourceTree = "<group>"; };
@@ -78,7 +78,7 @@
 				90C6924620AD52EC00D9C482 /* PhotosAlbumViewController.swift */,
 				90C6923620AD47E500D9C482 /* TravelLocationsMapViewController.swift */,
 				90C6924920AD54F800D9C482 /* PhotoCollectionViewCell.swift */,
-				903E57C120B674C300901E16 /* CoreDataStack.swift */,
+				903E57C120B674C300901E16 /* CoreDataAccess.swift */,
 				90C6924B20AE339000D9C482 /* Model */,
 				90C6924820AD530400D9C482 /* Assets */,
 				90C6924020AD47E900D9C482 /* Info.plist */,
@@ -184,7 +184,7 @@
 				90C6925120AE76FA00D9C482 /* GCD.swift in Sources */,
 				90C6923720AD47E500D9C482 /* TravelLocationsMapViewController.swift in Sources */,
 				90C6924A20AD54F800D9C482 /* PhotoCollectionViewCell.swift in Sources */,
-				903E57C220B674C300901E16 /* CoreDataStack.swift in Sources */,
+				903E57C220B674C300901E16 /* CoreDataAccess.swift in Sources */,
 				90C6923520AD47E500D9C482 /* AppDelegate.swift in Sources */,
 				90D3670820B4DFE00022E88C /* DataController.swift in Sources */,
 				90D3670A20B506700022E88C /* Pins+extension.swift in Sources */,

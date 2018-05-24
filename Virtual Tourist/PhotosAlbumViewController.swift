@@ -25,11 +25,11 @@ class PhotosAlbumViewController : UIViewController {
     var newImageForExistingPin = false
     var pinPhotos : PinPhotos!
     var pics = [PinPhotos]()
-    var dataController : DataController!
-    var fetchResultController: NSFetchedResultsController<PinPhotos>!
     var saveNotificationToken : Any?
     var isLoading = false
+     private let coreDataAccess = CoreDataAccess.sharedInstance
     
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,20 +38,9 @@ class PhotosAlbumViewController : UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         mapView.showsUserLocation = true
-        let fetchRequest : NSFetchRequest<PinPhotos> = PinPhotos.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "pins == %@", selectedPin)
-        let sortDescriptors = NSSortDescriptor(key: "creationDate", ascending: false)
-        fetchRequest.sortDescriptors = [sortDescriptors]
-        if let result = try? dataController.viewContext.fetch(fetchRequest) {
-            pics = result
-        }
+        pics = coreDataAccess.fetchAllPinPhotos(selectedPin)
     }
-    
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        fetchResultController = nil
-    }
+
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -70,10 +59,7 @@ class PhotosAlbumViewController : UIViewController {
         if newCollectionButton.currentTitle == "New Collection" {
             newCollectionButton.isEnabled = false
             if pics.count != 0 {
-                for object in pics {
-                     try? dataController.viewContext.delete(object)
-                }
-                try? dataController.viewContext.save()
+                coreDataAccess.deleteAllImages(pics)
                 pics.removeAll()
             }
             getNewImageSet()
@@ -112,16 +98,8 @@ class PhotosAlbumViewController : UIViewController {
                         let imageURL = URL(string: imageUrlString)
                         if let imageData = try? Data(contentsOf: imageURL!) {
                             performUIUpdatesOnMain {
-                                let pinData = PinPhotos(context: self.dataController.viewContext)
-                                pinData.images = imageData
-                                pinData.pins = self.selectedPin
-                                pinData.creationDate = Date()
-                                self.pics.append(pinData)
-                                
-                                do {
-                                    try self.dataController.viewContext.save()
-                                } catch {
-                                    print("Failed saving")
+                                if let pinData = self.coreDataAccess.saveImageData(imageData, self.selectedPin){
+                                     self.pics.append(pinData)
                                 }
                                 self.collectionView.reloadData()
                             }

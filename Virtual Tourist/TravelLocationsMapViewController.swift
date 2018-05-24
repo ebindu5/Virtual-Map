@@ -19,19 +19,16 @@ class TravelLocationsMapViewController: UIViewController, NSFetchedResultsContro
     @IBOutlet var gesture: UILongPressGestureRecognizer!
     var pins : [Pins] = []
     var pinPhotos = [PinPhotos]()
-    var dataController : DataController!
     var fetchResultController : NSFetchedResultsController<Pins>!
+    private let coreDataAccess = CoreDataAccess.sharedInstance
+    
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
         
-        let fetchRequest: NSFetchRequest<Pins> = Pins.fetchRequest()
-        let sortDescriptors = NSSortDescriptor(key: "creationDate", ascending: false)
-        fetchRequest.sortDescriptors = [sortDescriptors]
-        if let result = try? dataController.viewContext.fetch(fetchRequest) {
-            pins = result
-        }
+        pins = coreDataAccess.fetchAllPins()
         
         if pins.count != 0 {
             self.mapView.addAnnotations(pins)
@@ -58,14 +55,9 @@ class TravelLocationsMapViewController: UIViewController, NSFetchedResultsContro
                 let touchPoint = gesture.location(in: mapView)
                 annotation.coordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
                 
-                let pin: Pins = Pins(context: dataController.viewContext)
-                pin.latitude = annotation.coordinate.latitude
-                pin.longitude = annotation.coordinate.longitude
-                pin.creationDate = Date()
-                
-                try? dataController.viewContext.save()
-                
-                pins.append(pin)
+                if let pin = coreDataAccess.createPin(annotation.coordinate.latitude, annotation.coordinate.longitude){
+                   pins.append(pin)
+                }
                 mapView.addAnnotation(annotation)
             }
         }
@@ -99,13 +91,12 @@ extension TravelLocationsMapViewController : MKMapViewDelegate {
             let selectedPin = pins[index]
             
             if !deleteLabel.isHidden {
-                    dataController.viewContext.delete(selectedPin)
-                    try? dataController.viewContext.save()
+                if coreDataAccess.deletePin(selectedPin){
                     pins.remove(at: index)
                     mapView.removeAnnotation(view.annotation!)
+                }
             }else{
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "PhotosAlbumViewController") as? PhotosAlbumViewController
-                vc?.dataController = self.dataController
                 vc?.selectedPin = selectedPin
                 self.navigationController?.pushViewController(vc!, animated: true)
 

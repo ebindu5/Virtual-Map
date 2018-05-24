@@ -11,7 +11,7 @@ import MapKit
 import UIKit
 import CoreData
 
-class PhotosAlbumViewController : UIViewController, NSFetchedResultsControllerDelegate {
+class PhotosAlbumViewController : UIViewController {
     
     @IBOutlet var mapView : MKMapView!
     @IBOutlet var newCollectionButton: UIButton!
@@ -21,7 +21,6 @@ class PhotosAlbumViewController : UIViewController, NSFetchedResultsControllerDe
     var photosObject : [[String: AnyObject]]?
     var selectedPhotos : [Int]!
     var selectedPin : Pins!
-//    var photoCount: Int!
     let annotation = MKPointAnnotation()
     var newImageForExistingPin = false
     var pinPhotos : PinPhotos!
@@ -29,6 +28,7 @@ class PhotosAlbumViewController : UIViewController, NSFetchedResultsControllerDe
     var dataController : DataController!
     var fetchResultController: NSFetchedResultsController<PinPhotos>!
     var saveNotificationToken : Any?
+    var isLoading = false
     
     
     override func viewDidLoad() {
@@ -46,13 +46,8 @@ class PhotosAlbumViewController : UIViewController, NSFetchedResultsControllerDe
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
             pics = result
         }
-        collectionView.reloadData()
-        addNotificationObserver()
     }
     
-    deinit {
-        removeNotificationObserver()
-    }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
@@ -61,22 +56,22 @@ class PhotosAlbumViewController : UIViewController, NSFetchedResultsControllerDe
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        mapView.addAnnotation(selectedPin)
         if pics.count == 0 {
             getNewImageSet()
+        }else{
+            collectionView.reloadData()
         }
-        
-        collectionView.reloadData()
-        mapView.addAnnotation(selectedPin)
-        collectionView.reloadData()
     }
     
     
     @IBAction func newCollectionPressed() {
         if newCollectionButton.currentTitle == "New Collection" {
             newCollectionButton.isEnabled = false
+            if pics.count != 0 {
+                pics.removeAll()
+            }
             getNewImageSet()
-            
         }else{
             newCollectionButton.setTitle("New Collection", for: .normal)
         }
@@ -88,9 +83,9 @@ class PhotosAlbumViewController : UIViewController, NSFetchedResultsControllerDe
                 if error != nil {
                     self.noImagesLabel.isHidden = false
                 }
-                
                 if success! {
                     self.photosObject = data
+                    self.isLoading = true
                     self.collectionView.reloadData()
                     self.getImages()
                 }
@@ -99,26 +94,32 @@ class PhotosAlbumViewController : UIViewController, NSFetchedResultsControllerDe
     }
     
     func getImages(){
-        
         if let photoObjects = self.photosObject {
-            for objects in photoObjects {
-                if let imageUrlString = objects[Constants.FlickrResponseKeys.MediumURL] as?  String{
-                    let imageURL = URL(string: imageUrlString)
-                    if let imageData = try? Data(contentsOf: imageURL!) {
-                        performUIUpdatesOnMain {
-                            let pinData = PinPhotos(context: self.dataController.viewContext)
-                            pinData.images = imageData
-                            pinData.pins = self.selectedPin
-                            pinData.creationDate = Date()
-                            self.pics.append(pinData)
-                            
-                            do {
-                                try self.dataController.viewContext.save()
-                            } catch {
-                                print("Failed saving")
+            DispatchQueue.global(qos: .default).async {
+                for i in 0..<photoObjects.count {
+                    let objects = photoObjects[i]
+                    if let imageUrlString = objects[Constants.FlickrResponseKeys.MediumURL] as?  String{
+                        let imageURL = URL(string: imageUrlString)
+                        if let imageData = try? Data(contentsOf: imageURL!) {
+                            performUIUpdatesOnMain {
+                                let pinData = PinPhotos(context: self.dataController.viewContext)
+                                pinData.images = imageData
+                                pinData.pins = self.selectedPin
+                                pinData.creationDate = Date()
+                                self.pics.append(pinData)
+                                
+                                do {
+                                    try self.dataController.viewContext.save()
+                                } catch {
+                                    print("Failed saving")
+                                }
+                                self.collectionView.reloadData()
                             }
-                            self.collectionView.reloadData()
                         }
+                    }
+                    
+                    if (photoObjects.count == ( i + 1 )) {
+                        self.isLoading = false
                     }
                 }
             }
@@ -144,23 +145,36 @@ extension PhotosAlbumViewController : MKMapViewDelegate {
         return pinView
     }
     
-  
+    
 }
 
 extension PhotosAlbumViewController : UICollectionViewDelegate, UICollectionViewDataSource{
-
+    
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return pics.count ?? (photosObject?.count)!
+        var itemCount = 0
+        if(isLoading){
+            itemCount =  photosObject?.count ?? 0
+        } else {
+            itemCount = pics.count
+        }
+        
+        if itemCount == 0 {
+            noImagesLabel.isHidden = false
+        }else{
+            noImagesLabel.isHidden = true
+        }
+        
+        return itemCount
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCollectionViewCell", for: indexPath) as! PhotoCollectionViewCell
         
-//        print(PinPhotos(context: dataController.viewContext))
         performUIUpdatesOnMain {
             cell.activityIndicator.startAnimating()
             if indexPath.row < (self.pics.count) {
@@ -189,50 +203,3 @@ extension PhotosAlbumViewController : UICollectionViewDelegate, UICollectionView
     }
 }
 
-
-
-extension PhotosAlbumViewController {
-    
-    func addNotificationObserver(){
-        removeNotificationObserver()
-        NotificationCenter.default.addObserver(forName: .NSManagedObjectContextObjectsDidChange, object: dataController.viewContext, queue: nil, using: handleNotificationObserver(notification:))
-    }
-    
-    func removeNotificationObserver(){
-        if let token = saveNotificationToken {
-            NotificationCenter.default.removeObserver(token)
-        }
-    }
-    
-    func reloadData(){
-        collectionView.reloadData()
-    }
-    func handleNotificationObserver(notification: Notification){
-        DispatchQueue.main.async {
-            self.reloadData()
-        }
-    }
-    
-    
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        collectionView.reloadData()
-    }
-    
-    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        collectionView.reloadData()
-    }
-    
-    
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-        
-        switch type {
-        case .delete:
-            collectionView.deleteItems(at: [indexPath!])
-            print("sf")
-        case .insert :
-            collectionView.reloadItems(at: [indexPath!])
-        default:
-            print("ad")
-        }
-    }
-}

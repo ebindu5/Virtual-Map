@@ -105,54 +105,11 @@ extension TravelLocationsMapViewController : MKMapViewDelegate {
                     pins.remove(at: index)
                     mapView.removeAnnotation(view.annotation!)
             }else{
-                
-                //            let selectedPin = view.annotation?.coordinate
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "PhotosAlbumViewController") as? PhotosAlbumViewController
                 vc?.dataController = self.dataController
                 vc?.selectedPin = selectedPin
                 self.navigationController?.pushViewController(vc!, animated: true)
-                
-                
-                
-                //            let latitude = (selectedPin?.latitude)!
-                //            let longitude = (selectedPin?.longitude)!
-                //
-                //            let index = pinPhotos.index(where: {($0.latitude == latitude) && ($0.longitude == longitude)})
-                //
-                //            var fetchData = true
-                //            if (index != nil) {
-                //                if pinPhotos[index!].images != nil {
-                //                    fetchData = false
-                //                    vc?.selectedPin = selectedPin
-                //                    vc?.photoCount = pinPhotos[index!].images?.count
-                //
-                //                }else{
-                //                    vc?.newImageForExistingPin = true
-                //                }
-                //                performUIUpdatesOnMain {
-                //                    self.navigationController?.pushViewController(vc!, animated: true)
-                //                }
-                //            }
-                //
-                //            if fetchData {
-                //
-                //                FlickFinderImagesAPI.getImages(Double(latitude), Double((longitude))){ (success,data,error) in
-                //                    if error != nil {
-                //                        print(error!)
-                //                    }
-                //
-                //                    if success! {
-                //                        vc?.photosObject = data
-                //                        vc?.selectedPin = selectedPin
-                //                        vc?.photoCount = data?.count
-                //                        //TODO:
-                //                        //                    let photodata = self.pinPhotos(selectedPin: selectedPin, images: nil)
-                //                        //                    photoAlbumData.pinPhotoAlbum.append(photodata)
-                //                        performUIUpdatesOnMain {
-                //                            self.navigationController?.pushViewController(vc!, animated: true)
-                //                        }
-                //                    }
-                //                }
+
             }
         }
     }

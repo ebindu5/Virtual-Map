@@ -28,10 +28,10 @@ class PhotosAlbumViewController : UIViewController {
     var pics = [PinPhotos]()
     var saveNotificationToken : Any?
     var isLoading = false
-     private let coreDataAccess = CoreDataAccess.sharedInstance
+    private let coreDataAccess = CoreDataAccess.sharedInstance
     
-
-
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,7 +45,7 @@ class PhotosAlbumViewController : UIViewController {
         
         pics = coreDataAccess.fetchAllPinPhotos(selectedPin)
     }
-
+    
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -53,7 +53,7 @@ class PhotosAlbumViewController : UIViewController {
         mapView.showAnnotations([selectedPin], animated: true)
         noImagesLabel.isHidden = true
         if pics.count == 0 {
-             newCollectionButton.isEnabled = false
+            newCollectionButton.isEnabled = false
             getNewImageSet()
         }else{
             collectionView.reloadData()
@@ -113,9 +113,9 @@ class PhotosAlbumViewController : UIViewController {
                         if let imageData = try? Data(contentsOf: imageURL!) {
                             performUIUpdatesOnMain {
                                 if let pinData = self.coreDataAccess.saveImageData(imageData, self.selectedPin){
-                                     self.pics.append(pinData)
+                                    self.pics.append(pinData)
                                 }
-                                self.collectionView.reloadData()
+                                 self.collectionView.reloadData()
                             }
                         }
                     }
@@ -184,9 +184,7 @@ extension PhotosAlbumViewController : UICollectionViewDelegate, UICollectionView
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCollectionViewCell", for: indexPath) as! PhotoCollectionViewCell
-        
-        performUIUpdatesOnMain {
-            cell.activityIndicator.startAnimating()
+        cell.activityIndicator.startAnimating()
             if self.selectedPhotos != nil {
                 if self.selectedPhotos.contains(self.pics[indexPath.row]){
                     cell.overlayView.isHidden = false
@@ -194,14 +192,15 @@ extension PhotosAlbumViewController : UICollectionViewDelegate, UICollectionView
                     cell.overlayView.isHidden = true
                 }
             }
-       
+            
             if indexPath.row < (self.pics.count) {
+                cell.activityIndicator.stopAnimating()
                 cell.imageView.image = UIImage(data: self.pics[indexPath.row].images!)
+                
             }else{
                 cell.imageView.image = UIImage(named: "placeholder")
             }
-            cell.activityIndicator.stopAnimating()
-        }
+        
         return cell
     }
     

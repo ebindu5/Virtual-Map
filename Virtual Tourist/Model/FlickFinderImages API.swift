@@ -206,7 +206,6 @@ class FlickFinderImagesAPI: UIViewController {
             let queryItem = URLQueryItem(name: key, value: "\(value)")
             components.queryItems!.append(queryItem)
         }
-        print(components.url!)
         return components.url!
     }
     

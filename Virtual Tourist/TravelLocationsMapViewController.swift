@@ -37,7 +37,6 @@ class TravelLocationsMapViewController: UIViewController, NSFetchedResultsContro
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print(mapView.centerCoordinate)
         let latitude = defaults.double(forKey: "mapViewLatitude")
         let longitude = defaults.double(forKey: "mapViewLongitude")
         let center = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)

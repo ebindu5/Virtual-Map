@@ -31,6 +31,7 @@ class PhotosAlbumViewController : UIViewController {
      private let coreDataAccess = CoreDataAccess.sharedInstance
     
 
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,6 +40,9 @@ class PhotosAlbumViewController : UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         mapView.showsUserLocation = true
+        
+        setFlowLayout()
+        
         pics = coreDataAccess.fetchAllPinPhotos(selectedPin)
     }
 
@@ -125,6 +129,17 @@ class PhotosAlbumViewController : UIViewController {
                 }
             }
         }
+    }
+    
+    
+    fileprivate func setFlowLayout() {
+        let space:CGFloat = 3.0
+        
+        let width = (collectionView.frame.size.width - (2 * space)) / 3.0
+        let height = (collectionView.frame.size.height - (2 * space)) / 3.0
+        collectionFlowLayout.minimumInteritemSpacing = space
+        collectionFlowLayout.minimumLineSpacing = space
+        collectionFlowLayout.itemSize = CGSize(width: width, height: height)
     }
 }
 
